@@ -1,0 +1,598 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     23588,        590]
+NotebookOptionsPosition[     20567,        531]
+NotebookOutlinePosition[     21011,        548]
+CellTagsIndexPosition[     20968,        545]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[TextData[StyleBox["Introduction",
+ FontSize->24,
+ FontWeight->"Normal",
+ FontColor->RGBColor[
+  0.792156862745098, 0.3176470588235294, 0.09803921568627451]]], "Section",
+ CellChangeTimes->{{3.960198837848856*^9, 
+  3.960198859277445*^9}},ExpressionUUID->"9ea9ca97-e91a-9342-a625-\
+e31496e9ad91"],
+
+Cell["\<\
+Cities are expanding rapidly while local temperatures continue to rise, yet \
+planners and the public often lack a clear, unified view of where growing \
+populations overlap with the greatest heat exposure. High-resolution climate \
+data now provides consistent temperature fields world-wide, while global \
+population and land-cover rasters reveal settlement patterns and surface \
+changes. Bringing these layers together for any selected country can \
+illuminate how population density aligns with past and present temperature \
+patterns. This project aims to build an interactive atlas that fetches and \
+blends these global datasets for any nation, allowing users to explore and \
+quantify population\[Dash]temperature relationships across space and time.\
+\>", "Text",
+ CellChangeTimes->{{3.960199044913702*^9, 3.960199084182863*^9}, {
+   3.960199125363102*^9, 3.960199301826601*^9}, {3.9601993898694553`*^9, 
+   3.9601994321659336`*^9}, {3.9601994945008698`*^9, 
+   3.9601995007349567`*^9}, {3.9601995567580967`*^9, 
+   3.9601996047271175`*^9}, {3.9601996628087063`*^9, 3.96019968077162*^9}, {
+   3.9602002705381565`*^9, 3.9602002755619926`*^9}, 3.9602003118013496`*^9, {
+   3.960200464768717*^9, 3.960200548015238*^9}, {3.960200584181036*^9, 
+   3.960200585046177*^9}, {3.9602006891967144`*^9, 3.9602007228225613`*^9}, 
+   3.9602008028374405`*^9, {3.9602588565929337`*^9, 3.9602588637318935`*^9}, {
+   3.960393324694643*^9, 3.960393342218359*^9}, 3.960393380643305*^9, 
+   3.9603934566063347`*^9},ExpressionUUID->"6fa0c914-038d-0a43-b789-\
+76b4dc828a7d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["Goal",
+ FontSize->24,
+ FontWeight->"Normal",
+ FontColor->RGBColor[
+  0.792156862745098, 0.3176470588235294, 0.09803921568627451]]], "Section",
+ CellChangeTimes->{{3.9601997712716007`*^9, 
+  3.96019977172682*^9}},ExpressionUUID->"c52d9637-b155-1545-970e-\
+df6ee8a8b715"],
+
+Cell["\<\
+Deliver a tool that, given any country, assembles temperature, population, \
+and land-cover data into an interactive map for exploration and quantitative \
+analysis of how human settlement relates to local climate.\
+\>", "Text",
+ CellChangeTimes->{{3.960199781883604*^9, 3.960199790169037*^9}, {
+   3.960200913340767*^9, 3.960200915177967*^9}, {3.9602009834790287`*^9, 
+   3.9602009906841736`*^9}, {3.9602011465404263`*^9, 
+   3.9602011492635803`*^9}, {3.960392566033825*^9, 3.9603925693669014`*^9}, {
+   3.960393277139227*^9, 3.960393285001604*^9}, 
+   3.960393463478897*^9},ExpressionUUID->"76be9bd0-19b8-5040-8a7f-\
+3d55a0035173"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["Approach",
+ FontSize->24,
+ FontWeight->"Normal",
+ FontColor->RGBColor[
+  0.792156862745098, 0.3176470588235294, 0.09803921568627451]]], "Section",
+ CellChangeTimes->{{3.9602011148437366`*^9, 
+  3.9602011159913464`*^9}},ExpressionUUID->"d5c0ab57-6300-a547-ab47-\
+8d7a49469e2d"],
+
+Cell["\<\
+The data source is the match-level CSV from football-data.co.uk, which \
+provides each fixture\[CloseCurlyQuote]s final result (H/A/D) and the \
+full-time goals for home and away teams. After importing and cleaning these \
+data to extract decisive outcomes and compute per-game goal differentials, we \
+apply a one-tailed binomial test at \[Alpha] = 0.05 to the home-win \
+proportion (excluding draws) and a location-equivalence test to the \
+home-minus-away goal margins. By comparing the observed p-values and effect \
+sizes against their respective null models, we determine whether the popular \
+notion of a home-field edge is statistically defensible or simply sampling \
+variability.\
+\>", "Text",
+ CellChangeTimes->{{3.960205920908304*^9, 3.960205931095295*^9}, {
+   3.9602070068718147`*^9, 3.9602070181824055`*^9}, 3.960207128433035*^9, 
+   3.960207965435854*^9, {3.960208036451357*^9, 3.9602080392170734`*^9}, {
+   3.960235603959326*^9, 3.960235607799364*^9}, {3.960243577211796*^9, 
+   3.9602436048252773`*^9}, 
+   3.9602457349709816`*^9},ExpressionUUID->"9eb5f967-1b15-ff40-b2d5-\
+1da7049c0de0"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["STEP 1: Download and Preview Season Data",
+ FontWeight->"Normal",
+ FontColor->RGBColor[
+  0.7803921568627451, 0.4235294117647059, 0.1607843137254902]]], "Subsection",
+ CellChangeTimes->{{3.9602420370452023`*^9, 3.9602420504716454`*^9}, {
+  3.960243121095316*^9, 3.960243128182377*^9}, {3.960251796964365*^9, 
+  3.960251801883812*^9}, {3.960252238198551*^9, 
+  3.9602522384664536`*^9}},ExpressionUUID->"3012e273-8184-b648-bb10-\
+c157db0041a1"],
+
+Cell["\<\
+The 2023-24 Premier-League results are downloaded from football-data.co.uk \
+and turned into a Dataset. The file contains 380 rows (one per fixture) along \
+with the full-time result (H, A, D) and the goals scored by both teams.\
+\>", "Text",
+ CellChangeTimes->{{3.9602431606492424`*^9, 3.9602431740411854`*^9}, {
+   3.9602432095058956`*^9, 3.960243215802412*^9}, {3.9602432615653687`*^9, 
+   3.9602432696981754`*^9}, {3.9602465214019794`*^9, 3.96024652178566*^9}, 
+   3.9602489360966263`*^9, {3.9602504223783607`*^9, 
+   3.9602504274874115`*^9}},ExpressionUUID->"83012680-fc40-6940-875b-\
+fd2970db6526"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"raw", "=", 
+   RowBox[{"Import", "[", 
+    RowBox[{"\"\<https://www.football-data.co.uk/mmz4281/2324/E0.csv\>\"", 
+     ",", "\"\<CSV\>\""}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"head", "=", 
+   RowBox[{"First", "[", "raw", "]"}]}], ";", 
+  RowBox[{"rows", "=", 
+   RowBox[{"Rest", "[", "raw", "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"data", "=", 
+   RowBox[{"Dataset", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"AssociationThread", "[", 
+       RowBox[{"head", ",", "#"}], "]"}], "&"}], "/@", "rows"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"data", "[", 
+  RowBox[{"1", ";;", "3"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.9602462965355206`*^9, 3.9602462965355206`*^9}, 
+   3.9602463601809025`*^9, {3.960246551336054*^9, 3.9602465922007275`*^9}, {
+   3.9602470769675045`*^9, 3.9602470771223164`*^9}, {3.960248965105503*^9, 
+   3.9602489847818794`*^9}, {3.9602490971472454`*^9, 
+   3.9602491152730618`*^9}, {3.9602494145874615`*^9, 3.960249434147089*^9}, {
+   3.960252529880808*^9, 3.9602525429937763`*^9}, {3.960255180316326*^9, 
+   3.960255180618538*^9}},
+ CellLabel->"",ExpressionUUID->"602c68bf-dfb8-ad47-acdc-e8cb498a9841"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["STEP 2: Compute Outcome Counts and Goal Margins",
+ FontWeight->"Normal",
+ FontColor->RGBColor[
+  0.7803921568627451, 0.4235294117647059, 0.1607843137254902]]], "Subsection",
+ CellChangeTimes->{{3.9602494567736683`*^9, 3.9602494858027725`*^9}, {
+  3.960251849743799*^9, 3.960251853839674*^9}, {3.9602522417026634`*^9, 
+  3.9602522419504375`*^9}},ExpressionUUID->"503e90b8-6bc5-f44c-a4fe-\
+d02bef641253"],
+
+Cell["\<\
+A Boolean flag identifies decisive matches, and a goal - difference column \
+\[CapitalDelta]Goals = FTHG \[Minus] FTAG is added. Basic tallies will derive \
+the descriptive statistics that will feed the later hypothesis tests.\
+\>", "Text",
+ CellChangeTimes->{{3.960250215711828*^9, 3.960250220378252*^9}, {
+  3.960250389879795*^9, 3.9602504021036243`*^9}, {3.96025112276943*^9, 
+  3.9602511409257374`*^9}, {3.960251926607237*^9, 
+  3.960251927315674*^9}},ExpressionUUID->"70d603c5-11b9-2e43-bd7e-\
+cd5cf3132f8d"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"results", "=", 
+    RowBox[{"Normal", "@", 
+     RowBox[{"data", "[", 
+      RowBox[{"[", 
+       RowBox[{"All", ",", "\"\<FTR\>\""}], "]"}], "]"}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{"homeGoals", "=", 
+   RowBox[{"ToExpression", "/@", 
+    RowBox[{"Normal", "@", 
+     RowBox[{"data", "[", 
+      RowBox[{"[", 
+       RowBox[{"All", ",", "\"\<FTHG\>\""}], "]"}], "]"}]}]}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"awayGoals", "=", 
+    RowBox[{"ToExpression", "/@", 
+     RowBox[{"Normal", "@", 
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"All", ",", "\"\<FTAG\>\""}], "]"}], "]"}]}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"goalDiffs", "=", 
+    RowBox[{"homeGoals", "-", "awayGoals"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{"outcomeCounts", "=", 
+   RowBox[{"Counts", "[", "results", "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"homeWins", "=", 
+   RowBox[{"Lookup", "[", 
+    RowBox[{"outcomeCounts", ",", "\"\<H\>\"", ",", "0"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"awayWins", "=", 
+   RowBox[{"Lookup", "[", 
+    RowBox[{"outcomeCounts", ",", "\"\<A\>\"", ",", "0"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"draws", "=", 
+   RowBox[{"Lookup", "[", 
+    RowBox[{"outcomeCounts", ",", "\"\<D\>\"", ",", "0"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"mean\[CapitalDelta]", "=", 
+   RowBox[{"Mean", "[", "goalDiffs", "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.9602502306335697`*^9, 3.9602502306335697`*^9}, 
+   3.960250363399088*^9, {3.960250703984728*^9, 3.9602507494076214`*^9}, 
+   3.9602508916551113`*^9, 3.9602509631550026`*^9, {3.9602511443798485`*^9, 
+   3.9602511930055065`*^9}, 3.9602525241666718`*^9},
+ CellLabel->
+  "In[146]:=",ExpressionUUID->"acecba6d-3b1d-aa44-8d51-9f03506f5274"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["STEP 3: Binomial Test on Win Rate", "Subsection",
+ CellChangeTimes->{{3.9602522039457703`*^9, 3.9602522133326473`*^9}, {
+  3.9602522460668774`*^9, 
+  3.960252250802332*^9}},ExpressionUUID->"d8d51f76-f608-394a-992f-\
+d33d2cc0a5e3"],
+
+Cell["\<\
+A one-tailed binomial test evaluates H\:2080: p (home win) = 0.5 vs H\:2081: \
+p (home win) > 0.5, using only decisive matches (home + away wins). The \
+p-value tells how likely it would be, under the 50% null hypothesis, to \
+observe 175 or more home wins out of 298 decisive matches.\
+\>", "Text",
+ CellChangeTimes->{{3.9602523783020344`*^9, 
+  3.9602524593424244`*^9}},ExpressionUUID->"20cb9399-1a0c-0c46-b6f2-\
+cfbb1ff780c6"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"k", "=", "homeWins"}], ";"}], " "}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"n", "=", 
+    RowBox[{"homeWins", "+", "awayWins"}]}], ";"}], "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"dist", "=", 
+    RowBox[{"BinomialDistribution", "[", 
+     RowBox[{"n", ",", "0.5"}], "]"}]}], ";"}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{"binomP", "=", 
+  RowBox[{
+   RowBox[{"1", "-", 
+    RowBox[{"CDF", "[", 
+     RowBox[{"dist", ",", 
+      RowBox[{"k", "-", "1"}]}], "]"}]}], "//", "N"}]}]}], "Input",
+ CellChangeTimes->{{3.960252504255129*^9, 3.960252513235916*^9}, {
+  3.9602540134527454`*^9, 3.9602540561504707`*^9}},
+ CellLabel->"",ExpressionUUID->"84d23806-f752-cd4c-9bab-5ce2007b9351"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["STEP 4: Location Test on Goal Margin", "Subsection",
+ CellChangeTimes->{{3.960254201685272*^9, 
+  3.960254225864889*^9}},ExpressionUUID->"9ab532fa-fbd6-f349-a55b-\
+0d4c4cafeda7"],
+
+Cell["\<\
+A one-sample location-equivalence test checks H\:2080: \[Mu] \
+(\[CapitalDelta]Goals) = 0 vs H\:2081: \[Mu] (\[CapitalDelta]Goals) > 0. The \
+test uses all 380 goal - difference values.\
+\>", "Text",
+ CellChangeTimes->{{3.9602542377902355`*^9, 3.9602542809412327`*^9}, 
+   3.9602558348576546`*^9},ExpressionUUID->"12808267-1e20-6a4c-88e8-\
+ab4c4b7ba10a"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"nG", "=", 
+   RowBox[{"Length", "[", "goalDiffs", "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"mean\[CapitalDelta]", "=", 
+   RowBox[{"Mean", "[", "goalDiffs", "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"sd\[CapitalDelta]", "=", 
+    RowBox[{"StandardDeviation", "[", "goalDiffs", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"tStat", "=", 
+    RowBox[{"mean\[CapitalDelta]", "/", 
+     RowBox[{"(", 
+      RowBox[{"sd\[CapitalDelta]", "/", 
+       RowBox[{"Sqrt", "[", "nG", "]"}]}], ")"}]}]}], ";"}], " "}], "\n", 
+ RowBox[{
+  RowBox[{"goalP", "=", 
+   RowBox[{
+    RowBox[{"1", "-", 
+     RowBox[{"CDF", "[", 
+      RowBox[{
+       RowBox[{"StudentTDistribution", "[", 
+        RowBox[{"nG", "-", "1"}], "]"}], ",", "tStat"}], "]"}]}], "//", 
+    RowBox[{
+     RowBox[{"N", "[", 
+      RowBox[{"#", ",", "10"}], "]"}], "&"}]}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.9602543045600166`*^9, 3.9602543045600166`*^9}, {
+   3.960254443727787*^9, 3.9602544599977417`*^9}, 3.9602546034029827`*^9, 
+   3.9602548164337616`*^9, {3.960255008635004*^9, 3.960255045588627*^9}, 
+   3.9602552362681274`*^9},
+ CellLabel->
+  "In[164]:=",ExpressionUUID->"41ae4f72-03a6-aa4e-b9f6-b63ab000072a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["STEP 5: Robustness Checks", "Subsection",
+ CellChangeTimes->{{3.960255513340458*^9, 3.960255520900671*^9}, 
+   3.9602562355946503`*^9},ExpressionUUID->"e5d41065-5ef6-8741-aa7b-\
+d4b4d50f0264"],
+
+Cell["\<\
+Three additional statistical tests verify that the conclusions are not driven \
+by specific modelling choices.\
+\>", "Text",
+ CellChangeTimes->{{3.9602558086164474`*^9, 
+  3.9602558408140717`*^9}},ExpressionUUID->"e7d20329-34c5-0c4f-88df-\
+2b2f479df549"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"5", 
+     RowBox[{"a", ".", " ", "Treat"}], " ", "draws", " ", "as", " ", "half"}],
+     "-", "wins"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"pseudoHome", "=", 
+     RowBox[{"homeWins", "+", 
+      RowBox[{"draws", "/", "2"}]}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"pseudoAway", "=", 
+     RowBox[{"awayWins", "+", 
+      RowBox[{"draws", "/", "2"}]}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"halfN", "=", 
+     RowBox[{"pseudoHome", "+", "pseudoAway"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"halfP", "=", 
+     RowBox[{
+      RowBox[{"1", "-", 
+       RowBox[{"CDF", "[", 
+        RowBox[{
+         RowBox[{"BinomialDistribution", "[", 
+          RowBox[{"halfN", ",", "0.5"}], "]"}], ",", 
+         RowBox[{"pseudoHome", "-", "1"}]}], "]"}]}], "//", 
+      RowBox[{
+       RowBox[{"N", "[", 
+        RowBox[{"#", ",", "10"}], "]"}], "&"}]}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"5", 
+     RowBox[{"b", ".", " ", "Bootstrap"}], " ", "mean", " ", "goal", " ", 
+     "margin"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"bootMeans", "=", 
+     RowBox[{"Mean", "/@", 
+      RowBox[{"RandomChoice", "[", 
+       RowBox[{"goalDiffs", ",", 
+        RowBox[{"{", 
+         RowBox[{"1000", ",", 
+          RowBox[{"Length", "[", "goalDiffs", "]"}]}], "}"}]}], "]"}]}]}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"bootCI95", "=", 
+     RowBox[{
+      RowBox[{"Quantile", "[", 
+       RowBox[{"bootMeans", ",", 
+        RowBox[{"{", 
+         RowBox[{"0.025", ",", "0.975"}], "}"}]}], "]"}], "//", "N"}]}], 
+    ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"5", 
+     RowBox[{"c", ".", " ", "Early"}], " ", 
+     RowBox[{"vs", ".", "late"}], " ", "season", " ", "split"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"earlyDiffs", "=", 
+     RowBox[{"goalDiffs", "[", 
+      RowBox[{"[", 
+       RowBox[{"1", ";;", "190"}], "]"}], "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"lateDiffs", "=", 
+     RowBox[{"goalDiffs", "[", 
+      RowBox[{"[", 
+       RowBox[{"191", ";;"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"tPvalue", "[", "data_", "]"}], ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"n", "=", 
+          RowBox[{"Length", "[", "data", "]"}]}], ",", "m", ",", "sd", ",", 
+         "t"}], "}"}], ",", 
+       RowBox[{
+        RowBox[{"m", "=", 
+         RowBox[{"Mean", "[", "data", "]"}]}], ";", 
+        RowBox[{"sd", "=", 
+         RowBox[{"StandardDeviation", "[", "data", "]"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"t", "=", 
+         RowBox[{"m", "/", 
+          RowBox[{"(", 
+           RowBox[{"sd", "/", 
+            RowBox[{"Sqrt", "[", "n", "]"}]}], ")"}]}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"1", "-", 
+          RowBox[{"CDF", "[", 
+           RowBox[{
+            RowBox[{"StudentTDistribution", "[", 
+             RowBox[{"n", "-", "1"}], "]"}], ",", "t"}], "]"}]}], "//", 
+         RowBox[{
+          RowBox[{"N", "[", 
+           RowBox[{"#", ",", "10"}], "]"}], "&"}]}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{
+    RowBox[{"pEarly", "=", 
+     RowBox[{"tPvalue", "[", "earlyDiffs", "]"}]}], ";"}], "   ", 
+   RowBox[{"(*", 
+    RowBox[{"one", "-", 
+     RowBox[{"tailed", " ", "p", " ", "for", " ", "first", " ", "half"}]}], 
+    "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"pLate", "=", 
+     RowBox[{"tPvalue", "[", "lateDiffs", "]"}]}], ";"}], "    ", 
+   RowBox[{"(*", 
+    RowBox[{"one", "-", 
+     RowBox[{"tailed", " ", "p", " ", "for", " ", "second", " ", "half"}]}], 
+    "*)"}], "\n"}]}]], "Input",
+ CellChangeTimes->{{3.9602559474447517`*^9, 3.9602559474447517`*^9}, 
+   3.960256134604906*^9, {3.960256253510092*^9, 3.9602563046513042`*^9}, 
+   3.96025641948991*^9, {3.9602582861191654`*^9, 3.9602582938008785`*^9}},
+ CellLabel->
+  "In[208]:=",ExpressionUUID->"5bf9d8e6-02ee-3849-876a-10e9d0265802"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["STEP 6: Statistical Interpretation", "Subsection",
+ CellChangeTimes->{{3.960257506096508*^9, 
+  3.960257526753376*^9}},ExpressionUUID->"48ec0be0-61b3-c043-90ac-\
+a9e2e510dbd8"],
+
+Cell["\<\
+Both primary tests reject their null hypotheses: the binomial test where the \
+home team won 175 of 298 decisive matches  had a p \[TildeTilde] 0.0015, \
+while the one-sample t-test with an average goal margin of +0.32 goals had a \
+p \[TildeTilde] 0.0013. Robustness checks confirm these findings: counting \
+draws as half-wins still yields p \[TildeTilde] 0.004, a 1000-sample \
+bootstrap places the 95% confidence interval for the mean margin entirely \
+above zero (\[TildeTilde] +0.10 to +0.53), and early- vs. late-season splits \
+remain significant (p \[TildeTilde] 0.013 and 0.020, respectively). Because \
+every alternative specification keeps p < 0.05, the observed home-field edge \
+cannot be attributed to draw handling, sampling fluctuation, or a single \
+segment of the schedule.\
+\>", "Text",
+ CellChangeTimes->{{3.960257625556288*^9, 3.960257787735489*^9}, {
+  3.960257909770235*^9, 
+  3.9602579126437016`*^9}},ExpressionUUID->"73774f8e-989c-ec46-878e-\
+16c8e9b1efbe"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Conclusion", "Section",
+ CellChangeTimes->{{3.9602580040600452`*^9, 
+  3.9602580304269333`*^9}},ExpressionUUID->"4e67e1ff-6dd7-3040-a55d-\
+d361ec671ccf"],
+
+Cell["\<\
+Match-level data from the 2023-24 Premier League season reveals a genuine, if \
+modest, home-field advantage. Home sides not only won a noticeably larger \
+share of decisive fixtures but also out-scored visiting teams on average. \
+Multiple robustness checks\[LongDash]treating draws differently, \
+bootstrapping the goal margin, and splitting the season in \
+half\[LongDash]produced the same qualitative outcome, showing that the effect \
+is stable across analytic choices. Although the advantage is relatively \
+small, the evidence shows it is consistent and unlikely to be due to random \
+variation. These findings align with long-held fan intuition and indicate \
+that venue still matters, even in an era of polished stadiums and extensive \
+travel support.\
+\>", "Text",
+ CellChangeTimes->{{3.9602580371036377`*^9, 3.9602581200742435`*^9}, {
+  3.960258160430769*^9, 3.96025819723967*^9}, {3.9602582429438705`*^9, 
+  3.9602582593184357`*^9}, {3.9602583737471466`*^9, 
+  3.9602583880736313`*^9}},ExpressionUUID->"77487725-dc6e-6140-8e0d-\
+ce0a3640e3ec"]
+}, Open  ]]
+},
+WindowSize->{1140.6, 568.8},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+TaggingRules-><|"TryRealOnly" -> False|>,
+FrontEndVersion->"14.2 for Microsoft Windows (64-bit) (March 14, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"4fa48105-094f-1e48-8447-ca9b71dc4246"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 300, 7, 61, "Section",ExpressionUUID->"9ea9ca97-e91a-9342-a625-e31496e9ad91"],
+Cell[879, 31, 1571, 23, 121, "Text",ExpressionUUID->"6fa0c914-038d-0a43-b789-76b4dc828a7d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2487, 59, 293, 7, 61, "Section",ExpressionUUID->"c52d9637-b155-1545-970e-df6ee8a8b715"],
+Cell[2783, 68, 643, 11, 55, "Text",ExpressionUUID->"76be9bd0-19b8-5040-8a7f-3d55a0035173"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3463, 84, 300, 7, 61, "Section",ExpressionUUID->"d5c0ab57-6300-a547-ab47-8d7a49469e2d"],
+Cell[3766, 93, 1116, 18, 99, "Text",ExpressionUUID->"9eb5f967-1b15-ff40-b2d5-1da7049c0de0"],
+Cell[CellGroupData[{
+Cell[4907, 115, 466, 8, 53, "Subsection",ExpressionUUID->"3012e273-8184-b648-bb10-c157db0041a1"],
+Cell[5376, 125, 614, 10, 55, "Text",ExpressionUUID->"83012680-fc40-6940-875b-fd2970db6526"],
+Cell[5993, 137, 1193, 28, 85, "Input",ExpressionUUID->"602c68bf-dfb8-ad47-acdc-e8cb498a9841"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7223, 170, 426, 7, 53, "Subsection",ExpressionUUID->"503e90b8-6bc5-f44c-a4fe-d02bef641253"],
+Cell[7652, 179, 523, 9, 55, "Text",ExpressionUUID->"70d603c5-11b9-2e43-bd7e-cd5cf3132f8d"],
+Cell[8178, 190, 1909, 53, 237, "Input",ExpressionUUID->"acecba6d-3b1d-aa44-8d51-9f03506f5274"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10124, 248, 236, 4, 53, "Subsection",ExpressionUUID->"d8d51f76-f608-394a-992f-d33d2cc0a5e3"],
+Cell[10363, 254, 439, 8, 55, "Text",ExpressionUUID->"20cb9399-1a0c-0c46-b6f2-cfbb1ff780c6"],
+Cell[10805, 264, 754, 21, 123, "Input",ExpressionUUID->"84d23806-f752-cd4c-9bab-5ce2007b9351"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[11596, 290, 184, 3, 53, "Subsection",ExpressionUUID->"9ab532fa-fbd6-f349-a55b-0d4c4cafeda7"],
+Cell[11783, 295, 364, 7, 33, "Text",ExpressionUUID->"12808267-1e20-6a4c-88e8-ab4c4b7ba10a"],
+Cell[12150, 304, 1266, 35, 123, "Input",ExpressionUUID->"41ae4f72-03a6-aa4e-b9f6-b63ab000072a"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13453, 344, 198, 3, 53, "Subsection",ExpressionUUID->"e5d41065-5ef6-8741-aa7b-d4b4d50f0264"],
+Cell[13654, 349, 264, 6, 33, "Text",ExpressionUUID->"e7d20329-34c5-0c4f-88df-2b2f479df549"],
+Cell[13921, 357, 4138, 117, 427, "Input",ExpressionUUID->"5bf9d8e6-02ee-3849-876a-10e9d0265802"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[18096, 479, 182, 3, 53, "Subsection",ExpressionUUID->"48ec0be0-61b3-c043-90ac-a9e2e510dbd8"],
+Cell[18281, 484, 993, 16, 121, "Text",ExpressionUUID->"73774f8e-989c-ec46-878e-16c8e9b1efbe"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[19323, 506, 159, 3, 66, "Section",ExpressionUUID->"4e67e1ff-6dd7-3040-a55d-d361ec671ccf"],
+Cell[19485, 511, 1066, 17, 121, "Text",ExpressionUUID->"77487725-dc6e-6140-8e0d-ce0a3640e3ec"]
+}, Open  ]]
+}
+]
+*)
+
